@@ -9,7 +9,7 @@ locals {
 
 resource "azurerm_resource_group" "resource_group" {
   name     = local.resource_group_name
-  location = "East Us"
+  location =  var.location
 }
 
 resource "azurerm_virtual_network" "virtual_network" {
@@ -17,6 +17,14 @@ resource "azurerm_virtual_network" "virtual_network" {
   address_space       = ["10.0.0.0/16"]
   location            = var.location
   resource_group_name = azurerm_resource_group.resource_group.name
+}
+
+resource "azurerm_public_ip" "pip" {
+  name                    = "pip-${local.app_name}-dev"
+  location                = azurerm_resource_group.resource_group.location
+  resource_group_name     = azurerm_resource_group.resource_group.name
+  allocation_method       = "Static"
+  idle_timeout_in_minutes = 30
 }
 
 resource "azurerm_subnet" "main_subnet" {
@@ -35,19 +43,36 @@ resource "azurerm_network_interface" "nic" {
     name                          = "internal"
     subnet_id                     = azurerm_subnet.main_subnet.id
     private_ip_address_allocation = "Dynamic"
+    public_ip_address_id          = azurerm_public_ip.pip.id
   }
 }
 
-resource "azurerm_windows_virtual_machine" "vm" {
+resource "azurerm_storage_account" "vm_storage_account" {
+  name                     = "st${local.app_name}001"
+  resource_group_name      = azurerm_resource_group.resource_group.name
+  location                 = azurerm_resource_group.resource_group.location
+  account_tier             = "Standard"
+  account_replication_type = "LRS"
+}
+
+resource "azurerm_linux_virtual_machine" "vm" {
   name                = var.vm_name
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = var.location
-  size                = "Standard_F2"
+  size                = "Standard_DS2_v2"
   admin_username      = var.vm_admin_username
-  admin_password      = var.vm_admin_password
   network_interface_ids = [
     azurerm_network_interface.nic.id,
   ]
+
+  boot_diagnostics {
+    storage_account_uri = azurerm_storage_account.vm_storage_account.primary_blob_endpoint
+  }
+
+  admin_ssh_key {
+    username   = var.vm_admin_username
+    public_key = file("~/.ssh/id_rsa.pub")
+  }
 
   os_disk {
     caching              = "ReadWrite"
@@ -55,9 +80,9 @@ resource "azurerm_windows_virtual_machine" "vm" {
   }
 
   source_image_reference {
-    publisher = "MicrosoftWindowsServer"
-    offer     = "WindowsServer"
-    sku       = "2016-Datacenter"
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
     version   = "latest"
   }
 }
