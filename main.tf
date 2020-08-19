@@ -92,4 +92,15 @@ resource "azurerm_linux_virtual_machine" "vm" {
     sku       = "18.04-LTS"
     version   = "latest"
   }
+
+  provisioner "remote-exec" {
+    script = file("./init.sh")
+
+    connection {
+      host     = self.public_ip_address
+      user     = self.admin_username
+      password = self.admin_password
+    }
+  
+  }
 }
