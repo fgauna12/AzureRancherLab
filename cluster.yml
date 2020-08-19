@@ -3,7 +3,7 @@
 nodes:
 - address: rancher-mgnt
   port: "22"
-  internal_address: ""
+  internal_address: localhost
   role:
   - controlplane
   - worker
@@ -12,8 +12,7 @@ nodes:
   user: adminuser
   docker_socket: /var/run/docker.sock
   ssh_key: ""
-  ssh_key_path: "~/.ssh/id_rsa"
-  port: 22
+  ssh_key_path: ~/.ssh/id_rsa
   ssh_cert: ""
   ssh_cert_path: ""
   labels: {}
