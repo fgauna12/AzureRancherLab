@@ -94,12 +94,12 @@ resource "azurerm_linux_virtual_machine" "vm" {
   }
 
   provisioner "remote-exec" {
-    script = file("./init.sh")
+    script = "./init.sh"
 
     connection {
       host     = self.public_ip_address
       user     = self.admin_username
-      password = self.admin_password
+      private_key = file("~/.ssh/id_rsa")
     }
   
   }
