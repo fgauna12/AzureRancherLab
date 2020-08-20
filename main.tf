@@ -43,7 +43,7 @@ resource "azurerm_network_interface" "nic" {
   resource_group_name = azurerm_resource_group.resource_group.name
 
   ip_configuration {
-    name                          = "internal"
+    name                          = "internal" #not really internal just don't want to rename because it won't let me. i'd have delete and recreate
     subnet_id                     = azurerm_subnet.main_subnet.id
     private_ip_address_allocation = "Dynamic"
     public_ip_address_id          = azurerm_public_ip.pip[count.index].id
@@ -60,12 +60,21 @@ resource "azurerm_storage_account" "vm_storage_account" {
   account_replication_type = "LRS"
 }
 
+resource "azurerm_availability_set" "availability_set" {
+  name                = "vmas-${local.app_name}"
+  location            = azurerm_resource_group.resource_group.location
+  resource_group_name = azurerm_resource_group.resource_group.name
+  platform_fault_domain_count  = 2
+  platform_update_domain_count = 2
+}
+
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = "${var.vm_name}${count.index}"
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = var.location
   size                = "Standard_DS2_v2"
   admin_username      = var.vm_admin_username
+  availability_set_id = azurerm_availability_set.availability_set.id
   network_interface_ids = [
     azurerm_network_interface.nic[count.index].id,
   ]
