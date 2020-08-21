@@ -1,7 +1,7 @@
 # If you intened to deploy Kubernetes in an air-gapped environment,
 # please consult the documentation on how to configure custom RKE images.
 nodes:
-- address: rancher.gaunacode.com
+- address: 40.76.214.238
   port: "22"
   internal_address: 10.0.2.4
   role:
