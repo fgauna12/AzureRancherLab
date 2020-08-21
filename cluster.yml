@@ -75,7 +75,7 @@ services:
     extra_binds: []
     extra_env: []
 network:
-  plugin: weave
+  plugin: calico
   options: {}
   mtu: 0
   node_selector: {}
