@@ -8,7 +8,7 @@
 
 > :warning: The Terraform state file will be local. Don't commit it to source control.
 
-## Creating the RKE cluster
+## Getting Started 
 
 1. Clone this repo
 2. Ensure you're logged into Azure with the CLI. `az login`
