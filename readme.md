@@ -57,4 +57,8 @@ You're in! :tada:
 ## Tearing everything down
 
 1. `terraform destroy`
-2. Go to sleep
+2. Delete `kube_config_cluster.yaml`
+3. Delete `cluster.yml`
+4. Delete `clsuter.rkestate`
+5. Go to sleep
+
