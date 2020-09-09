@@ -4,8 +4,7 @@ provider "azurerm" {
 
 locals {
     app_name = "rancherlab"
-    resource_group_name = "rg-${local.app_name}-temp-002"
-    node_count = 3
+    resource_group_name = "rg-${local.app_name}-temp-003"
 }
 
 resource "azurerm_resource_group" "resource_group" {
@@ -21,13 +20,11 @@ resource "azurerm_virtual_network" "virtual_network" {
 }
 
 resource "azurerm_public_ip" "pip" {
-  name                    = "pip-${local.app_name}-${count.index}-dev"
+  name                    = "pip-${local.app_name}--dev"
   location                = azurerm_resource_group.resource_group.location
   resource_group_name     = azurerm_resource_group.resource_group.name
   allocation_method       = "Static"
-  idle_timeout_in_minutes = 30
-
-  count = local.node_count  
+  idle_timeout_in_minutes = 30  
 }
 
 resource "azurerm_subnet" "main_subnet" {
@@ -38,18 +35,18 @@ resource "azurerm_subnet" "main_subnet" {
 }
 
 resource "azurerm_network_interface" "nic" {
-  name                = "nic-${var.vnet_name}-${count.index}"
+  name                = "nic-${var.vnet_name}"
   location            = var.location
   resource_group_name = azurerm_resource_group.resource_group.name
 
   ip_configuration {
-    name                          = "internal"
+    name                          = "internal" #not really internal just don't want to rename because it won't let me. i'd have delete and recreate
     subnet_id                     = azurerm_subnet.main_subnet.id
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.pip[count.index].id
+    public_ip_address_id          = azurerm_public_ip.pip.id
   }
 
-  count = local.node_count
+  
 }
 
 resource "azurerm_storage_account" "vm_storage_account" {
@@ -61,16 +58,14 @@ resource "azurerm_storage_account" "vm_storage_account" {
 }
 
 resource "azurerm_linux_virtual_machine" "vm" {
-  name                = "${var.vm_name}${count.index}"
+  name                = var.vm_name
   resource_group_name = azurerm_resource_group.resource_group.name
   location            = var.location
   size                = "Standard_DS2_v2"
   admin_username      = var.vm_admin_username
   network_interface_ids = [
-    azurerm_network_interface.nic[count.index].id,
+    azurerm_network_interface.nic.id,
   ]
-
-  count = local.node_count
 
   boot_diagnostics {
     storage_account_uri = azurerm_storage_account.vm_storage_account.primary_blob_endpoint

@@ -1,40 +1,13 @@
 # If you intened to deploy Kubernetes in an air-gapped environment,
 # please consult the documentation on how to configure custom RKE images.
 nodes:
-- address: 104.211.39.169
+- address: rancher.gaunacode.com
   port: "22"
   internal_address: 10.0.2.4
   role:
   - controlplane
+  - worker
   - etcd
-  hostname_override: ""
-  user: adminuser
-  docker_socket: /var/run/docker.sock
-  ssh_key: ""
-  ssh_key_path: ~/.ssh/id_rsa
-  ssh_cert: ""
-  ssh_cert_path: ""
-  labels: {}
-  taints: []
-- address: 104.211.32.168
-  port: "22"
-  internal_address: 10.0.2.6
-  role:
-  - worker
-  hostname_override: ""
-  user: adminuser
-  docker_socket: /var/run/docker.sock
-  ssh_key: ""
-  ssh_key_path: ~/.ssh/id_rsa
-  ssh_cert: ""
-  ssh_cert_path: ""
-  labels: {}
-  taints: []
-- address: 168.62.38.174
-  port: "22"
-  internal_address: 10.0.2.5
-  role:
-  - worker
   hostname_override: ""
   user: adminuser
   docker_socket: /var/run/docker.sock
@@ -79,7 +52,7 @@ services:
     extra_args: {}
     extra_binds: []
     extra_env: []
-    cluster_cidr: 10.0.2.0/24
+    cluster_cidr: 10.0.0.0/16
     service_cluster_ip_range: 10.43.0.0/16
   scheduler:
     image: ""
